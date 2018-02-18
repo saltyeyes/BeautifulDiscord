@@ -5,7 +5,7 @@ import shutil
 import argparse
 import textwrap
 import subprocess
-import psutil
+from subprocess import check_output
 import sys
 from beautifuldiscord.asar import Asar
 
@@ -145,19 +145,17 @@ CSS files must have the ".css" extension.
 
 def discord_process():
     executables = {}
-    for proc in psutil.process_iter():
-        try:
-            (path, exe) = os.path.split(proc.exe())
-        except (psutil.Error, OSError):
-            pass
-        else:
-            if exe.startswith('Discord') and not exe.endswith('Helper'):
-                entry = executables.get(exe)
+    for proc in check_output(["ps", "--windows", "--all", "--full"]).split("\n"):
+        proc_name = "C:\\" + proc.rsplit("C:\\", maxsplit=1)
+        (path, exe) = proc_name.rsplit("\\", maxsplit=1)
 
-                if entry is None:
-                    entry = executables[exe] = DiscordProcess(path=path, exe=exe)
+        if exe.startswith('Discord') and not exe.endswith('Helper'):
+            entry = executables.get(exe)
 
-                entry.processes.append(proc)
+            if entry is None:
+                entry = executables[exe] = DiscordProcess(path=path, exe=exe)
+
+            entry.processes.append(proc_name)
 
     if len(executables) == 0:
         raise RuntimeError('Could not find Discord executable.')
