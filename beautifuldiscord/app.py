@@ -146,7 +146,7 @@ CSS files must have the ".css" extension.
 def discord_process():
     executables = {}
     for proc in check_output(["ps", "--windows", "--all", "--full"]).decode().split("\n"):
-        proc_name = "C:\\" + proc.rsplit("C:\\", maxsplit=1)
+        proc_name = "C:\\" + proc.rsplit("C:\\", maxsplit=1)[1]
         (path, exe) = proc_name.rsplit("\\", maxsplit=1)
 
         if exe.startswith('Discord') and not exe.endswith('Helper'):
